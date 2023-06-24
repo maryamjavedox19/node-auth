@@ -9,7 +9,7 @@ const handleErrors = (err) => {
   let errors = { email: '', password: '' };  //this will send back to user if theres email error then email property otherwise password property
 
   // duplicate email error
-  if (err.code === 11000) {
+  if (err.code === 11000) {   //11000 is an error code for duplicate
     errors.email = 'that email is already registered';
     return errors;
   }
