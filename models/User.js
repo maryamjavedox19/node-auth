@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');  //to create new user model
 const { isEmail } = require('validator');  //importing from validator package to validate an email
+const bcrypt = require('bcrypt');      // to hash password(make it secure)
 
 const userSchema = new mongoose.Schema({    //schema define the structure of user document
     email: {
@@ -17,17 +18,22 @@ const userSchema = new mongoose.Schema({    //schema define the structure of use
   });
   
 
+
   // fire a function after doc saved to db
-  userSchema.post('save', function (doc, next) {    //after the save event occurs then fire this function (when new doc is saved to database)
-    console.log('new user was created & saved', doc);
-    next();   //to go to the next middlewear. have to do that in any kind of mongoose middlewaer
-  });
+  // userSchema.post('save', function (doc, next) {    //after the save event occurs then fire this function (when new doc is saved to database)
+  //   console.log('new user was created & saved', doc);
+  //   next();   //to go to the next middlewear. have to do that in any kind of mongoose middlewaer
+  // });
+
+
   
   // fire a function before doc saved to db
-  // userSchema.pre('save', function (next) {
-  //   console.log('user about to be created & saved', this);
-  //   next();
-  // });
+  userSchema.pre('save', async function (next) {    //we can't use arrow function here bcs we are using this which refers to instance of user object
+    // console.log('user about to be created & saved', this);   //local instance of the user before we save it to the db
+    const salt = await bcrypt.genSalt();
+    this.password = await bcrypt.hash(this.password, salt);  //first argument is password we want to hash, sec arg is salt
+    next();
+  });
   
                     
   
