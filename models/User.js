@@ -15,6 +15,20 @@ const userSchema = new mongoose.Schema({    //schema define the structure of use
       minlength: [6, 'Minimum password length is 6 characters'],
     }
   });
+  
+
+  // fire a function after doc saved to db
+  userSchema.post('save', function (doc, next) {    //after the save event occurs then fire this function (when new doc is saved to database)
+    console.log('new user was created & saved', doc);
+    next();   //to go to the next middlewear. have to do that in any kind of mongoose middlewaer
+  });
+  
+  // fire a function before doc saved to db
+  // userSchema.pre('save', function (next) {
+  //   console.log('user about to be created & saved', this);
+  //   next();
+  // });
+  
                     
   
 //model based on this schema  
