@@ -5,9 +5,21 @@ const jwt = require('jsonwebtoken');  //to create json web tokens
 // handle errors
 const handleErrors = (err) => {
   console.log(err.message, err.code);   //error code is for unique key from schema
-
   // errors object
   let errors = { email: '', password: '' };  //this will send back to user if theres email error then email property otherwise password property
+
+
+  
+  // incorrect email
+  if (err.message === 'incorrect email') {
+    errors.email = 'That email is not registered';
+  }
+
+  // incorrect password
+  if (err.message === 'incorrect password') {
+    errors.password = 'That password is incorrect';
+  }
+
 
   // duplicate email error
   if (err.code === 11000) {   //11000 is an error code for duplicate
@@ -76,8 +88,11 @@ module.exports.signup_get = (req, res) => {
    
     try {
       const user = await User.login(email, password);   //if its a sucess we are sending back a user
+      const token = createToken(user._id);
+      res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
       res.status(200).json({ user: user._id });
     } catch (err) {
-      res.status(400).json({});
+      const errors = handleErrors(err);
+      res.status(400).json({errors});
     }
   }
