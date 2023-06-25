@@ -1,4 +1,5 @@
 const User = require("../models/User");  //importing user model
+const jwt = require('jsonwebtoken');  //to create json web tokens
 
 
 // handle errors
@@ -30,6 +31,14 @@ const handleErrors = (err) => {
   return errors;
 }
 
+// create json web token
+const maxAge = 3 * 24 * 60 * 60;   //value of 3 days in sec
+const createToken = (id) => {   //id of user 
+  return jwt.sign({ id }, 'net ninja secret', {   //arguments: object id, secret, object about how long jwt should remain valid
+    expiresIn: maxAge
+  });
+};
+
 
 // controller actions
 module.exports.signup_get = (req, res) => {
@@ -47,13 +56,20 @@ module.exports.signup_get = (req, res) => {
    try {
     // we want to wait until thats completed and promise has resolves then we get user and store it in varoable thats why we using await here
     const user = await User.create({ email, password });  //create creates an instance of user locally and save it to database
-    res.status(201).json(user);   //sending an user object as json to whatever has sent request
+    const token = createToken(user._id);  //crate token
+    res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });//token inside cookie
+    //args:  cookiename, value, options object ^^^    age:3days
+    res.status(201).json({ user: user._id });   //sending an user object as json to whatever has sent request
   }
+
+
   catch(err) {
     const errors = handleErrors(err);
     res.status(400).json({errors});
   }
   }
+
+  // every request we make cookie is going to be send to server so server could check data and verify 
   
   module.exports.login_post = async (req, res) => {
     const { email, password } = req.body;
