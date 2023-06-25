@@ -35,6 +35,24 @@ const userSchema = new mongoose.Schema({    //schema define the structure of use
     next();
   });
   
+
+  // static method to login user
+userSchema.statics.login = async function(email, password) {
+  // looking for in db the user with this email  
+  const user = await this.findOne({ email });   //email:email //"this" refers to user model itself  matching the email user enterd with the email in db
+  // if theres user then it will give the user otherwise it will give undefined
+  if (user) {
+    // comparing hashed password
+    const auth = await bcrypt.compare(password, user.password);  //bcrypt is going to hash it and compare hashed passwords
+    //                        not hashed password, hashed password from db
+    if (auth) {   //if pasw has matched
+      return user;
+    }
+    throw Error('incorrect password');
+  }
+  throw Error('incorrect email');
+};
+
                     
   
 //model based on this schema  
