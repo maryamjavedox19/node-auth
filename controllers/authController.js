@@ -96,3 +96,10 @@ module.exports.signup_get = (req, res) => {
       res.status(400).json({errors});
     }
   }
+
+
+  module.exports.logout_get = (req, res) => {
+    // replacing cookie whith an empty string w short time limit
+    res.cookie('jwt', '', { maxAge: 1 });
+    res.redirect('/');
+  }
